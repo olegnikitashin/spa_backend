@@ -3,7 +3,7 @@ module Api
     before_action :find_post, only: [:show, :update, :destroy]
 
     def index
-      @posts = Post.all.order(created_at: :desc)
+      @posts = Post.order(created_at: :desc)
       render json: @posts, status: 200
     end
 
