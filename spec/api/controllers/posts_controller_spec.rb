@@ -5,7 +5,7 @@ module Api
     subject { JSON.parse(response.body) }
 
     describe "GET posts#index" do
-      let!(:posts) { create_list(:post,2) }
+      let!(:posts) { create_list(:post, 2) }
       before (:each) do
         get :index
       end
@@ -75,7 +75,7 @@ module Api
       let!(:post) { create :post }
       let(:title) { "Third post" }
       before (:each) do
-      put :update, params: { id: post.id, post: { title: title } }
+        put :update, params: { id: post.id, post: { title: title } }
       end
 
       it "returns a 200 status" do
@@ -103,7 +103,7 @@ module Api
         expect(response.status).to eq 204
       end
       it "returns a 204 status" do
-        expect { destroy_request }.to change(Post, :count).by -1
+        expect { destroy_request }.to change(Post, :count).by (-1)
       end
     end
   end
