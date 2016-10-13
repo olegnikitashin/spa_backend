@@ -19,7 +19,7 @@ module Api
       end
     end
 
-    describe "POST posts#index" do
+    describe "POST posts#create" do
       let(:post_params) do
         attributes_for(:post)
       end
@@ -103,7 +103,7 @@ module Api
         expect(response.status).to eq 204
       end
       it "returns a 204 status" do
-        expect { destroy_request }.to change(Post, :count).by (-1)
+        expect { destroy_request }.to change(Post, :count).by -1
       end
     end
   end
