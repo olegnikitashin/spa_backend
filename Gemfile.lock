@@ -176,9 +176,14 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+<<<<<<< HEAD
+  capistrano-bundler
+  capistrano-rails
+=======
   capistrano (~> 3.1.0)
   capistrano-bundler (~> 1.1.2)
   capistrano-rails (~> 1.1.1)
+>>>>>>> master
   capistrano-rails-console
   capistrano-rbenv
   capybara

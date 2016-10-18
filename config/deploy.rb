@@ -1,5 +1,5 @@
 # config valid only for Capistrano 3.1
-lock '3.1.0'
+lock '3.6.1'
 set :application, 'spa_backend'
 set :repo_url, 'git@github.com:olegnikitashin/spa_backend.git'
 
@@ -45,6 +45,8 @@ set :log_level, :info
 set :linked_files, %w{config/database.yml config/secrets.yml}
 set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
+set :puma_init_active_record, true
+
 namespace :deploy do
 
   desc 'Restart application'
@@ -53,7 +55,6 @@ namespace :deploy do
       execute :touch, release_path.join('tmp/restart.txt')
     end
   end
-
   after :publishing, 'deploy:restart'
   after :finishing, 'deploy:cleanup'
 end
