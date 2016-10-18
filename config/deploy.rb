@@ -48,3 +48,13 @@ set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rben
 set :rbenv_roles, :all
 
 set :puma_init_active_record, true
+
+task :start do
+  on roles(:web) do
+    within "#{fetch(:deploy_to)}/current/" do
+      with RAILS_ENV: fetch(:stage) do
+        execute :bundle, :exec, :"puma -b 'unix://#{shared_path}/tmp/sockets/puma.sock' -e #{fetch(:stage)} -t 1:32 -w 2 --control 'unix://#{shared_path}/tmp/sockets/pumactl.sock' -S #{shared_path}/tmp/pids/puma.state >> #{shared_path}/log/puma-#{fetch(:stage)}.log 2>&1 &"
+      end
+    end
+  end
+end
