@@ -19,3 +19,6 @@
 test
 config/provision/keys
 config/provision/configs/settings.yml
+
+config/database.yml
+config/secrets.yml
