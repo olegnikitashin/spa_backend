@@ -9,9 +9,14 @@ set :branch, 'master'
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
 # Default deploy_to directory is /var/www/my_app_name
-set :deploy_to, '/home/deploy/applications/spa_backend'
+set :deploy_to, '/home/deploy/spa_backend'
 
 set :log_level, :info
+
+# Default branch is :master
+# ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+
+# Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, '/var/www/my_app_name'
 
 # Default value for :scm is :git
@@ -38,42 +43,18 @@ set :log_level, :info
 
 # Default value for keep_releases is 5
 # set :keep_releases, 5
+set :linked_files, %w{config/database.yml config/secrets.yml}
+set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
-set :linked_files, %w{config/database.yml config/settings.yml}
-set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/uploads}
+namespace :deploy do
 
-set :rbenv_type, :user
-set :rbenv_ruby, '2.3.1'
-set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
-set :rbenv_roles, :all
-
-set :puma_init_active_record, true
-
-namespace :figaro do
-  desc "SCP transfer figaro configuration to the shared folder"
-  task :setup do
-    on roles(:app) do
-      upload! "config/application.yml", "#{shared_path}/application.yml", via: :scp
+  desc 'Restart application'
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute :touch, release_path.join('tmp/restart.txt')
     end
   end
 
-  desc "Symlink application.yml to the release path"
-  task :symlink do
-    on roles(:app) do
-      execute "ln -sf #{shared_path}/application.yml #{current_path}/config/application.yml"
-    end
-  end
-end
-after "deploy:started", "figaro:setup"
-after "deploy:symlink:release", "figaro:symlink"
-
-
-task :start do
-  on roles(:web) do
-    within "#{fetch(:deploy_to)}/current/" do
-      with RAILS_ENV: fetch(:stage) do
-        execute :bundle, :exec, :"puma -b 'unix://#{shared_path}/tmp/sockets/puma.sock' -e #{fetch(:stage)} -t 1:32 -w 2 --control 'unix://#{shared_path}/tmp/sockets/pumactl.sock' -S #{shared_path}/tmp/pids/puma.state >> #{shared_path}/log/puma-#{fetch(:stage)}.log 2>&1 &"
-      end
-    end
-  end
+  after :publishing, 'deploy:restart'
+  after :finishing, 'deploy:cleanup'
 end
