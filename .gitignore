@@ -19,3 +19,6 @@
 test
 config/provision/keys
 config/provision/configs/settings.yml
+
+# Ignore application configuration
+/config/application.yml

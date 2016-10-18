@@ -49,12 +49,29 @@ set :rbenv_roles, :all
 
 set :puma_init_active_record, true
 
-task :start do
-  on roles(:web) do
-    within "#{fetch(:deploy_to)}/current/" do
-      with RAILS_ENV: fetch(:stage) do
-        execute :bundle, :exec, :"puma -b 'unix://#{shared_path}/tmp/sockets/puma.sock' -e #{fetch(:stage)} -t 1:32 -w 2 --control 'unix://#{shared_path}/tmp/sockets/pumactl.sock' -S #{shared_path}/tmp/pids/puma.state >> #{shared_path}/log/puma-#{fetch(:stage)}.log 2>&1 &"
+namespace :figaro do
+  desc "SCP transfer figaro configuration to the shared folder"
+  task :setup do
+    run "mkdir -p #{shared_path}/config"
+    transfer :up, "config/application.yml", "#{shared_path}/config/application.yml", via: :scp
+  end
+
+  desc "Symlink application.yml to the release path"
+  task :symlink do
+    run "ln -sf #{shared_path}/config/application.yml #{latest_release}/config/application.yml"
+  end
+
+  desc "Check if figaro configuration file exists on the server"
+  task :check do
+    begin
+      run "test -f #{shared_path}/config/application.yml"
+    rescue Capistrano::CommandError
+      unless fetch(:force, false)
+        logger.important 'application.yml file does not exist on the server "shared/config/application.yml"'
+        exit
       end
     end
   end
 end
+after "deploy:setup", "figaro:setup"
+after "deploy:finalize_update", "figaro:symlink"
