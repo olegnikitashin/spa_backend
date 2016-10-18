@@ -22,3 +22,5 @@ config/provision/configs/settings.yml
 
 config/database.yml
 config/secrets.yml
+
+/ds/
